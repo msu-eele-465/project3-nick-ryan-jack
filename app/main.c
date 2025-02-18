@@ -1,7 +1,8 @@
+#include "msp430fr2355.h"
 #include <msp430.h>
 #include <stdbool.h>
 
-/** Jack Glutting-Gilsdorf, Nick _____ , Ryan _______
+/** Jack Glutting-Gilsdorf, Nick _____ , Ryan Adolph
 * Project #3
 * 2/13/2025
 * EELE465
@@ -35,13 +36,40 @@ int main(void)
     WDTCTL = WDTPW | WDTHOLD;               // Stop watchdog timer
     
     // Disable GPIO power-on default high-impedance mode
-    PM5CTL0 &= ~LOCKLPM5;
+    
 
     HeartBeat();
 
+    // light bar output pins
+    P6SEL0 |= 0b00011111;
+    P6SEL1 |= 0b00011111;   // make IO
+    P6DIR |= 0b00011111;    // make it output
+    P6REN &= ~0b00011111;   // give pull down resistor
+    P6OUT &= ~0b00011111;   // clear output
+    
+    P3SEL0 |= 0b10001101;
+    P3SEL1 |= 0b10001101;
+    P3DIR |= 0b10001101;
+    P3REN &= ~0b10001101;
+    P3OUT &= ~0b10001101;
+
+    P2SEL0 |= BIT4;
+    P2SEL1 |= BIT4;
+    P2DIR |= BIT2;
+    P2REN &= ~BIT2;
+    P2OUT &= ~BIT2;
+
+
+    PM5CTL0 &= ~LOCKLPM5;
     while (true)
     {
+
+        P3OUT |= BIT4;
+        P3OUT |= BIT1;
         
+        P6IN |= BIT2;
+        P6IN |= BIT3;
+
     }
 }
 
