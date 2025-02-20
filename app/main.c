@@ -37,6 +37,12 @@ void HeartBeat()
         TB0CCR0 = 4678;            // CCR0 = 4678
                                        //(0.004678s * 1,000,000 Hz) / (1*1) = 4678
 
+    //----- Setup Timers Overflow IQR--------
+    TB0CCTL0 &= ~CCIFG;           //Clear CCR0 flag
+    TB0CCTL0 |= CCIE;             //Enable CCR0 Overflow IQR
+    TB0CCTL1 &= ~CCIFG;           //Clear CCR1 flag
+    TB0CCTL1 |= CCIE;             //Enable CCR1 Overflow IQR
+
     __enable_interrupt();  // Enable maskable interrupts
 }
 
@@ -57,8 +63,8 @@ int main(void)
  
 
 // Timer B0 Overflow ISR
-#pragma vector = TIMER0_B1_VECTOR
-__interrupt void ISR_TB0_Overflow(void)
+#pragma vector = TIMER0_B0_VECTOR
+__interrupt void ISR_TB0_CCR0(void)
 {
     if (TB0CTL & TBIFG)  // Check if overflow flag is set
     {
@@ -66,7 +72,7 @@ __interrupt void ISR_TB0_Overflow(void)
         TB0CTL &= ~TBIFG;  // Clear interrupt flag
     }
 
-    if (arrayCounter == 4){ 
+    if (arrayCounter == 3){ 
         arrayCounter = 0;         // increment array position variable
 
     }
