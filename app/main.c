@@ -76,4 +76,4 @@ __interrupt void ISR_TB0_Overflow(void)
 
     TB0CCTL0 &= ~CCIFG;         // clear TB0 flag  
 }
-}
+
