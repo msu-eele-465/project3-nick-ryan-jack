@@ -98,6 +98,21 @@ int main(void)
 
     TB1CCTL1 &= ~CCIFG;           //Clear CCR1 flag
 
+    //----- Setup Timer B1 (USE FOR RED PIN RGB LED)--------
+    TB1CTL |= TBCLR;            // Clear Timers and Dividers
+    TB1CTL |= TBSSEL__SMCLK;    // Source = SMCLK
+    TB1CTL |= MC__UP;           // Mode   = Up
+    TB1CTL |= CNTL__16;         // Choose counter length (16 bits)
+    TB1CTL |= ID__4;            // Choose D1
+    TB1EX0 |= TBIDEX__7;        // Choose D2 such that D1 * D2 = D
+    TB1CCR0 = 214;              // TB0CCR0 = 214
+
+    //----- Setup Timers Overflow IQR--------
+    TB1CCTL0 &= ~CCIFG;           //Clear CCR0 flag
+    TB1CCTL0 |= CCIE;             //Enable CCR0 Overflow IQR
+
+    TB1CCTL1 &= ~CCIFG;           //Clear CCR1 flag
+
     PM5CTL0 &= ~LOCKLPM5;       // Turn off GPIO
 
     while (true)
