@@ -6,25 +6,36 @@
 * 2/13/2025
 * EELE465
 */
+int arrayCounter = 0;
+int DrillOn[] = {1, 2, 4, 8};
 
 void HeartBeat()
 {
     // Stop watchdog timer
     WDTCTL = WDTPW | WDTHOLD;
+   //----- Setup Keypad ports (P1.4 -> P1.7) (P5.0, P5.1, P5.3, P5.4)--------
+        // keypad outputs (P1.4 -> P1.7)
+    P1SEL0 |= 0b11110000;       // P1.4 -> P1.7
+    P1SEL1 |= 0b11110000;       // make IO
+    P1DIR |=  0b11110000;       // configure P1's as output
+	P1OUT &=  ~0b11110000;      // clearing P1 output
 
-    // LED1 (P1.0) and LED2 (P1.1) set as output
-    P1DIR |= BIT0 | BIT1;  // Set P1.0 (LED1) and P1.1 (LED2) as outputs
-    P1OUT &= ~(BIT0 | BIT1);  // Ensure LEDs are off initially
+        // keypad inputs (P5.0, P5.1, P5.3, P5.4)
+    P5SEL0 |= 0b00011011;       // P5.0, P5.1, P5.3, P5.4
+    P5SEL1 |= 0b00011011;       // make IO
+    P5DIR &=  ~0b00011011;      // configure P5's as Input
+	P5OUT &=  ~0b00011011;      // clearing P5 output
+    // ------- keypad ports done -----
 
-    //----- Setup Timer B0 -----
-    TB0CTL = TBCLR;          // Clear timer and dividers
-    TB0CTL |= TBSSEL__ACLK;  // Select ACLK as timer source
-    TB0CTL |= MC__CONTINUOUS;// Choose continuous counting mode
-    TB0CTL |= CNTL_1;        // Using N = 2^12
-    TB0CTL |= ID__8;         // Setting divider d1 = 8 (d2 default = 1), total D = 8
-    TB0CTL |= TBIE;          // Enable overflow interrupt
+    //Setup Timer B0
+        TB0CTL |= TBCLR;            // clear timer and dividers
+        TB0CTL |= TBSSEL__SMCLK;    // source = SMCLK
+        TB0CTL |= MC__UP;           // mode = up
+        TB0CTL |= ID__1;            // D1 = 1
+        TB0EX0 |=  TBIDEX__1;       // D2 = 1
 
-    TB0CTL &= ~TBIFG;        // Clear interrupt flag
+        TB0CCR0 = 4678;            // CCR0 = 4678
+                                       //(0.004678s * 1,000,000 Hz) / (1*1) = 4678
 
     __enable_interrupt();  // Enable maskable interrupts
 }
@@ -38,12 +49,12 @@ int main(void)
     PM5CTL0 &= ~LOCKLPM5;
 
     HeartBeat();
-
-    while (true)
+ while (true)
     {
-        
-    }
+        DrillOn[arrayCounter] = P1OUT;
+    };
 }
+ 
 
 // Timer B0 Overflow ISR
 #pragma vector = TIMER0_B1_VECTOR
@@ -54,4 +65,15 @@ __interrupt void ISR_TB0_Overflow(void)
         P1OUT ^= BIT0;  // Toggle LED1
         TB0CTL &= ~TBIFG;  // Clear interrupt flag
     }
+
+    if (arrayCounter == 4){ 
+        arrayCounter = 0;         // increment array position variable
+
+    }
+    else{
+        arrayCounter++;
+    }
+
+    TB0CCTL0 &= ~CCIFG;         // clear TB0 flag  
+}
 }
