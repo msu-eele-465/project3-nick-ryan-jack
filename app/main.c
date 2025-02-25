@@ -12,6 +12,9 @@ int col2Input = 0;
 int col3Input = 0;
 int col4Input = 0;
 bool testHigh = false;
+char button_input;
+char passkey[] = {'1', '3', 'C', '0'};
+char user_input[4] = {'0'};
 
 
 void Keypad_init(void)
@@ -37,7 +40,7 @@ void Keypad_init(void)
     TB0CTL |= TBSSEL__SMCLK | MC__UP;      // use SMCLK in Up mode
     TB0CTL |= ID__4;                     // Divider /4
     TB0EX0 |= TBIDEX__2;                 // Extended divider /2 (total division factor = 8)
-    TB0CCR0 = 4678;                      // Timer period (adjust as needed)
+    TB0CCR0 = 9356;                      // Timer period (adjust as needed) PREV 4678 -> changed to double for better reads
    
     // Enable CCR0 interrupt
     TB0CCTL0 &= ~CCIFG;                  // Clear flag
@@ -46,6 +49,18 @@ void Keypad_init(void)
     __enable_interrupt();                // Enable maskable interrupts
 }
 
+
+void locked(){}
+
+void unlocked(){}
+
+
+
+void Passkey_func(char input){
+
+
+
+}
 
 int main(void)
 {
@@ -82,7 +97,21 @@ __interrupt void ISR_TB0_CCR0(void)
             col4Input = P5IN;  // Sample keypad column inputs
             switch(col4Input){
                 case 0b0001:
+                    button_input = '1';
                     P6OUT ^= BIT6;
+                    break;
+                case 0b0010:
+                    button_input = '4';
+                    P6OUT ^= BIT6;
+                    break;
+                case 0b0100:
+                    button_input = '7';
+                    P6OUT ^= BIT6;
+                    break;
+                case 0b1000:
+                    button_input = '*';
+                    P6OUT ^= BIT6;
+                    break;
             };
             break;
            
@@ -91,6 +120,24 @@ __interrupt void ISR_TB0_CCR0(void)
             P1OUT |= BIT5;
             P1OUT &= ~(BIT4 | BIT6 | BIT7);
             col3Input = P5IN;
+            switch(col3Input){
+                case 0b0001:
+                    button_input = '2';
+                    P6OUT ^= BIT6;
+                    break;
+                case 0b0010:
+                    button_input = '5';
+                    P6OUT ^= BIT6;
+                    break;
+                case 0b0100:
+                    button_input = '8';
+                    P6OUT ^= BIT6;
+                    break;
+                case 0b1000:
+                    button_input = '0';
+                    P6OUT ^= BIT6;
+                    break;
+            };
             break;
            
         case 2:
@@ -98,6 +145,24 @@ __interrupt void ISR_TB0_CCR0(void)
             P1OUT |= BIT6;
             P1OUT &= ~(BIT4 | BIT5 | BIT7);
             col2Input = P5IN;
+            switch(col2Input){
+                case 0b0001:
+                    button_input = '3';
+                    P6OUT ^= BIT6;
+                    break;
+                case 0b0010:
+                    button_input = '6';
+                    P6OUT ^= BIT6;
+                    break;
+                case 0b0100:
+                    button_input = '9';
+                    P6OUT ^= BIT6;
+                    break;
+                case 0b1000:
+                    button_input = '#';
+                    P6OUT ^= BIT6;
+                    break;
+            };
             break;
            
         case 3:
@@ -110,6 +175,24 @@ __interrupt void ISR_TB0_CCR0(void)
                 keypadInput[0] = 1;
             }
             col1Input = P5IN;
+            switch(col1Input){
+                case 0b0001:
+                    button_input = 'A';
+                    P6OUT ^= BIT6;
+                    break;
+                case 0b0010:
+                    button_input = 'B';
+                    P6OUT ^= BIT6;
+                    break;
+                case 0b0100:
+                    button_input = 'C';
+                    P6OUT ^= BIT6;
+                    break;
+                case 0b1000:
+                    button_input = 'D';
+                    P6OUT ^= BIT6;
+                    break;
+            };
             break;
            
         default:
