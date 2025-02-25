@@ -2,7 +2,7 @@
 #include <stdbool.h>
 
 
-/** Jack Glutting-Gilsdorf, Nick _____ , Ryan _______
+/** Jack Glutting-Gilsdorf, Nick Haldar , Ryan Adolph
 * Project #3
 * 2/13/2025
 * EELE465
@@ -92,7 +92,7 @@ void Initialize_LEDBAR()
 }
 
 
-int main(void)
+int choose_pattern(char input)
 {
 
     // clear R3 - 6
@@ -115,13 +115,13 @@ int main(void)
 while (true)
    {
         delay_loop();
-        switch(pattern) {
-            case 0:
+        switch(input) {
+            case '1':
                 P6OUT = Lower_Lightbar_array0;
                 P4OUT = Upper_Lightbar_array0;
 
                 break;
-           case 1:
+           case '2':
                 if(LIGHTBAR1_POS == LIGHTBAR1_LENGTH){ 
                     P6OUT = Lower_Lightbar_array1[LIGHTBAR1_POS];
                     P4OUT = Upper_Lightbar_array1[LIGHTBAR1_POS];
@@ -132,7 +132,7 @@ while (true)
                 P4OUT = Upper_Lightbar_array1[LIGHTBAR1_POS];
                 LIGHTBAR1_POS++;
                 break;
-           case 2: 
+           case '3': 
                 if(LIGHTBAR2_POS == LIGHTBAR2_LENGTH){ 
                     if(Upper_Lightbar_value2 == 0b11110000){
                         Upper_Lightbar_value2 = 0;
@@ -148,7 +148,7 @@ while (true)
                 LIGHTBAR2_POS++;
                 break;
 
-           case 3:
+           case '4':
                 if(LIGHTBAR3_POS == LIGHTBAR3_LENGTH){ 
                     P6OUT = Lower_Lightbar_array3[LIGHTBAR3_POS];
                     P4OUT = Upper_Lightbar_array3[LIGHTBAR3_POS];
@@ -160,7 +160,7 @@ while (true)
                 LIGHTBAR3_POS++;
                 break;
 
-            case 4: 
+            case '5': 
                 if(Lower_Lightbar_value4 == 0b00000000 && LIGHTBAR4_POS == 0 && Upper_Lightbar_value4 == 0b11110000){
                      Upper_Lightbar_value4 = 0b11110000;}
                 if(LIGHTBAR4_POS == LIGHTBAR4_LENGTH){ 
@@ -177,7 +177,6 @@ while (true)
                 P6OUT = Lower_Lightbar_value4;
                 LIGHTBAR4_POS++;
                 break;
-
        } 
 
 
