@@ -104,12 +104,12 @@ int choose_pattern(char input)
 
         //delay_loop();
         switch(input) {
-            case '1':
+            case '0':
                 P6OUT = Lower_Lightbar_array0;
                 P4OUT = Upper_Lightbar_array0;
 
                 break;
-           case '2':
+           case '1':
                 if(LIGHTBAR1_POS == LIGHTBAR1_LENGTH){ 
                     P6OUT = Lower_Lightbar_array1[LIGHTBAR1_POS];
                     P4OUT = Upper_Lightbar_array1[LIGHTBAR1_POS];
@@ -120,7 +120,7 @@ int choose_pattern(char input)
                 P4OUT = Upper_Lightbar_array1[LIGHTBAR1_POS];
                 LIGHTBAR1_POS++;
                 break;
-           case '3': 
+           case '2': 
                 if(LIGHTBAR2_POS == LIGHTBAR2_LENGTH){ 
                     if(Upper_Lightbar_value2 == 0b11110000){
                         Upper_Lightbar_value2 = 0;
@@ -136,7 +136,7 @@ int choose_pattern(char input)
                 LIGHTBAR2_POS++;
                 break;
 
-           case '4':
+           case '3':
                 if(LIGHTBAR3_POS == LIGHTBAR3_LENGTH){ 
                     P6OUT = Lower_Lightbar_array3[LIGHTBAR3_POS];
                     P4OUT = Upper_Lightbar_array3[LIGHTBAR3_POS];
@@ -148,7 +148,7 @@ int choose_pattern(char input)
                 LIGHTBAR3_POS++;
                 break;
 
-            case '5': 
+            case '4': 
                 if(Lower_Lightbar_value4 == 0b00000000 && LIGHTBAR4_POS == 0 && Upper_Lightbar_value4 == 0b11110000){
                      Upper_Lightbar_value4 = 0b11110000;}
                 if(LIGHTBAR4_POS == LIGHTBAR4_LENGTH){ 
@@ -165,10 +165,42 @@ int choose_pattern(char input)
                 P6OUT = Lower_Lightbar_value4;
                 LIGHTBAR4_POS++;
                 break;
+            case '5':
+                if(LIGHTBAR5_POS == LIGHTBAR5_LENGTH){ 
+                    P6OUT = Lower_Lightbar_array5[LIGHTBAR5_POS];
+                    P4OUT = Upper_Lightbar_array5[LIGHTBAR5_POS];
+                    LIGHTBAR5_POS = 0;
+                    break;
+                }
+                P6OUT = Lower_Lightbar_array5[LIGHTBAR5_POS];
+                P4OUT = Upper_Lightbar_array5[LIGHTBAR5_POS];
+                LIGHTBAR5_POS++;
+                break;
+
+            case '6':
+                if(LIGHTBAR6_POS == LIGHTBAR6_LENGTH){ 
+                    P6OUT = Lower_Lightbar_array6[LIGHTBAR6_POS];
+                    P4OUT = Upper_Lightbar_array6[LIGHTBAR6_POS];
+                    LIGHTBAR6_POS = 0;
+                    break;
+                }
+                P6OUT = Lower_Lightbar_array6[LIGHTBAR6_POS];
+                P4OUT = Upper_Lightbar_array6[LIGHTBAR6_POS];
+                LIGHTBAR6_POS++;
+                break;
+            case '7':
+                if(LIGHTBAR7_POS == LIGHTBAR7_LENGTH){ 
+                    P6OUT = Lower_Lightbar_array7[LIGHTBAR7_POS];
+                    P4OUT = Upper_Lightbar_array7[LIGHTBAR7_POS];
+                    LIGHTBAR7_POS = 0;
+                    break;
+                }
+                P6OUT = Lower_Lightbar_array7[LIGHTBAR7_POS];
+                P4OUT = Upper_Lightbar_array7[LIGHTBAR7_POS];
+                LIGHTBAR7_POS++;
+                break;
        }; 
 
-
-       //DrillOn[arrayCounter] = P1OUT;
 }
 
 
