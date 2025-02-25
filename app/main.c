@@ -15,6 +15,31 @@ int row2Input = 0;
 int row3Input = 0;
 int row4Input = 0;
 
+
+
+int Upper_Lightbar_array0[] = {10100000};
+int Lower_Lightbar_array0[] = {00001010};
+
+int Upper_Lightbar_array1[] = {10100000, 01010000};
+int Lower_Lightbar_array1[] = {00001010, 00000101};
+int LIGHTBAR1_LENGTH = 1;
+int LIGHTBAR1_POS;
+
+int Upper_Lightbar_value2;
+int Lower_Lightbar_value2;
+int LIGHTBAR2_LENGTH = 15;
+int LIGHTBAR2_POS; // instead of doing this just increment P6 by one 16 times, and increment P4 by 16 every 16 times
+
+int Upper_Lightbar_array3[] = {00010000, 00100000, 01000000, 10000000, 01000000, 00100000};
+int Lower_Lightbar_array3[] = {00001000, 00000100, 00000010, 00000001, 00000010, 00000100};
+int LIGHTBAR3_LENGTH = 5;
+int LIGHTBAR3_POS;
+
+int Upper_Lightbar_value4;
+int Lower_Lightbar_value4;
+int LIGHTBAR4_LENGTH = 15;
+int LIGHTBAR4_POS; // instead of doing this just decrement P6 by one 16 times, and decrement P4 by 16 every 16 times
+
 void HeartBeat()
 {
    // Stop watchdog timer
@@ -46,6 +71,20 @@ void HeartBeat()
        TB0CCR0 = 4678;            // CCR0 = 4678
                                       //(0.004678s * 1,000,000 Hz) / (1*1) = 4678
 
+    //----- Setup light bar output pins   ( (Lower) P6.0 -> P6.3, (Upper) P4.4 -> P4.7 )--------
+        //P6SEL0 |= 0b00011111;   // P6.0 -> P6.3
+        //P6SEL1 |= 0b00011111;   // make IO
+        P6DIR |= 0b00001111;    // make it output
+        P6REN &= ~0b00001111;   // give pull down resistor
+        P6OUT &= ~0b00001111;   // clear output
+        
+        //P3SEL0 |= 0b10001101;   // P4.4 -> P4.7
+        //P3SEL1 |= 0b10001101;
+        P4DIR |= 0b11110000;
+        P4REN &= ~0b11110000;
+        P4OUT &= ~0b11110000;
+
+    // ------- light bar done -----
 
    //----- Setup Timers Overflow IQR--------
    TB0CCTL0 &= ~CCIFG;           //Clear CCR0 flag
