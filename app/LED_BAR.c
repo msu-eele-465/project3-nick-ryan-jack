@@ -7,15 +7,6 @@
 * 2/13/2025
 * EELE465
 */
-int arrayCounter = 0;
-int DrillOn[] = {1, 2, 4, 8};
-int keypadInput[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-int row1Input = 0;
-int row2Input = 0;
-int row3Input = 0;
-int row4Input = 0;
-
-
 
 int current_value;
 
@@ -111,10 +102,7 @@ int choose_pattern(char input)
    PM5CTL0 &= ~LOCKLPM5;
 
 
-   Initialize_LEDBAR();
-while (true)
-   {
-        delay_loop();
+        //delay_loop();
         switch(input) {
             case '1':
                 P6OUT = Lower_Lightbar_array0;
@@ -177,12 +165,12 @@ while (true)
                 P6OUT = Lower_Lightbar_value4;
                 LIGHTBAR4_POS++;
                 break;
-       } 
+       }; 
 
 
        //DrillOn[arrayCounter] = P1OUT;
-   };
 }
+
 
 
 

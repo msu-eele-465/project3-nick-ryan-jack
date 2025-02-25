@@ -1,6 +1,8 @@
 #include "msp430fr2355.h"
 #include <msp430.h>
 #include <stdbool.h>
+#include "LED_BAR.h"
+//#include "LED_BAR.c"
 
 
 // Global variables
@@ -15,6 +17,7 @@ bool testHigh = false;
 char button_input;
 char passkey[] = {'1', '3', 'C', '0'};
 char user_input[4] = {'0'};
+int locked;
 
 
 void Keypad_init(void)
@@ -50,14 +53,22 @@ void Keypad_init(void)
 }
 
 
-void locked(){}
+void locked(){
+    locked = 1;
+}
 
-void unlocked(){}
-
-
+void unlocked(){
+    locked =0;
+}
 
 void Passkey_func(char input){
 
+    if(locked == 1){
+        
+    }else if(input == 'D'){
+        locked();
+    }
+    choose_pattern(input);
 
 
 }
@@ -68,7 +79,7 @@ int main(void)
     PM5CTL0 &= ~LOCKLPM5;
    
     Keypad_init();
-   
+    Initialize_LEDBAR();
     // Main loop enters low-power mode; all processing is in the ISR.
     while(1)
     {
@@ -99,10 +110,12 @@ __interrupt void ISR_TB0_CCR0(void)
                 case 0b0001:
                     button_input = '1';
                     P6OUT ^= BIT6;
+                    Passkey_func(button_input);
                     break;
                 case 0b0010:
                     button_input = '4';
                     P6OUT ^= BIT6;
+                    Passkey_func(button_input);
                     break;
                 case 0b0100:
                     button_input = '7';
