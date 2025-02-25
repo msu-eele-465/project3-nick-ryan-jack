@@ -1,150 +1,240 @@
 #include "msp430fr2355.h"
 #include <msp430.h>
 #include <stdbool.h>
+#include "LED_BAR.h"
+//#include "LED_BAR.c"
 
-/** Jack Glutting-Gilsdorf, Nick Haldar, Ryan Adolph
-* Project #3
-* 2/13/2025
-* EELE465
-*/
 
-void HeartBeat()
+// Global variables
+int arrayCounter = 0;
+int DrillOn[] = {1, 2, 4, 8};
+//int keypadInput[16] = {0};  // initialize all elements to 0
+int col1Input = 0;
+//int row1Input = 0;
+int row1IsHigh = 0;
+int col2Input = 0;
+int col3Input = 0;
+int col4Input = 0;
+bool testHigh = false;
+char button_input;
+char passkey[] = {'1', '3', 'C', '0'};
+char user_input[4] = {'0'};
+int locked = 0;
+
+
+void Keypad_init(void)
 {
     // Stop watchdog timer
     WDTCTL = WDTPW | WDTHOLD;
+   
+    // --- Setup Keypad Ports ---
+    // Configure P1.4-P1.7 as outputs (for driving keypad rows)
+    P1DIR |= BIT0 | BIT4 | BIT5 | BIT6 | BIT7;
+    P1OUT &= ~(BIT0 | BIT4 | BIT5 | BIT6 | BIT7); // start with all rows low
+   
+    // Configure P5.0-P5.3 as inputs (for reading keypad columns)
+    P5DIR &= ~(BIT0 | BIT1 | BIT2 | BIT3);
+    P5REN &= BIT0 | BIT1 | BIT2 | BIT3;
+    P5OUT &= ~(BIT0 | BIT1 | BIT2 | BIT3);
 
-    // LED1 (P1.0) and LED2 (P1.1) set as output
-    P1DIR |= BIT0 | BIT1;  // Set P1.0 (LED1) and P1.1 (LED2) as outputs
-    P1OUT &= ~(BIT0 | BIT1);  // Ensure LEDs are off initially
+    P6DIR |= BIT6;
+    P6OUT &= ~BIT6;
+   
+    // --- Setup Timer B0 ---
+    TB0CTL = TBCLR;                      // clear timer
+    TB0CTL |= TBSSEL__SMCLK | MC__UP;      // use SMCLK in Up mode
+    TB0CTL |= ID__4;                     // Divider /4
+    TB0EX0 |= TBIDEX__2;                 // Extended divider /2 (total division factor = 8)
+    TB0CCR0 = 9356;                      // Timer period (adjust as needed) PREV 4678 -> changed to double for better reads
+   
+    // Enable CCR0 interrupt
+    TB0CCTL0 &= ~CCIFG;                  // Clear flag
+    TB0CCTL0 |= CCIE;                    // Enable interrupt
+   
+    __enable_interrupt();                // Enable maskable interrupts
+}
 
-    //----- Setup Timer B0 -----
-    TB0CTL = TBCLR;          // Clear timer and dividers
-    TB0CTL |= TBSSEL__ACLK;  // Select ACLK as timer source
-    TB0CTL |= MC__CONTINUOUS;// Choose continuous counting mode
-    TB0CTL |= CNTL_1;        // Using N = 2^12
-    TB0CTL |= ID__8;         // Setting divider d1 = 8 (d2 default = 1), total D = 8
-    TB0CTL |= TBIE;          // Enable overflow interrupt
 
-    TB0CTL &= ~TBIFG;        // Clear interrupt flag
+void isLocked(){
+    locked = 1;
+}
 
-    __enable_interrupt();  // Enable maskable interrupts
+void unlocked(){
+    locked =0;
+}
+
+void Passkey_func(char input){
+
+    if(locked == 1){
+        
+    }else if(input == 'D'){
+        isLocked();
+    }
+    choose_pattern(input);
+
+
+}
+
+void p5High() {
+    if (P5IN != 0) {
+
+    }
 }
 
 int main(void)
 {
-    // Stop watchdog timer
-    WDTCTL = WDTPW | WDTHOLD;               // Stop watchdog timer
-    
-    // Disable GPIO power-on default high-impedance mode
-    
-
-    HeartBeat();
-
-    //----- Setup light bar output pins   ( P6.0 -> P6.4, P3.7, P2.4, P3.3. P3.2, P3.0)--------
-    P6SEL0 |= 0b00011111;   // P6.0 -> P6.4
-    P6SEL1 |= 0b00011111;   // make IO
-    P6DIR |= 0b00011111;    // make it output
-    P6REN &= ~0b00011111;   // give pull down resistor
-    P6OUT &= ~0b00011111;   // clear output
-    
-    P3SEL0 |= 0b10001101;   // P3.7, P3.3, P3.2, P3.0
-    P3SEL1 |= 0b10001101;
-    P3DIR |= 0b10001101;
-    P3REN &= ~0b10001101;
-    P3OUT &= ~0b10001101;
-
-    P2SEL0 |= BIT4;         // P2.4
-    P2SEL1 |= BIT4;
-    P2DIR |= BIT2;
-    P2REN &= ~BIT2;
-    P2OUT &= ~BIT2;
-    // ------- light bar done -----
-
-
-    //----- Setup Keypad ports (P1.4 -> P1.7) (P5.0, P5.1, P5.3, P5.4)--------
-        // keypad outputs (P1.4 -> P1.7)
-    P4SEL0 |= 0b11110000;       // P1.4 -> P1.7
-    P4SEL1 |= 0b11110000;       // make IO
-    P1DIR |=  0b11110000;       // configure P1's as output
-	P1OUT &=  ~0b11110000;      // clearing P1 output
-
-        // keypad inputs (P5.0, P5.1, P5.3, P5.4)
-    P5SEL0 |= 0b00011011;       // P5.0, P5.1, P5.3, P5.4
-    P5SEL1 |= 0b00011011;       // make IO
-    P5DIR &=  ~0b00011011;      // configure P5's as Input
-	P5OUT &=  ~0b00011011;      // clearing P5 output
-    // ------- keypad ports done -----
-
-
-    //----- Setup RGB LED ports (P2.0, P2.2, P4.0)--------
-    P2SEL0 |= 0b00000101;       // P2.0, P2.2
-    P2SEL1 |= 0b00000101;       // make IO
-    P2DIR |=  0b00000101;       // configure P2's output
-	P2OUT &=  ~0b00000101;      // clearing P2 output
-    // ------- RGB LED done -----
-
-    //----- Setup Timer B1 (USE FOR RED PIN RGB LED)--------
-    TB1CTL |= TBCLR;            // Clear Timers and Dividers
-    TB1CTL |= TBSSEL__SMCLK;    // Source = SMCLK
-    TB1CTL |= MC__UP;           // Mode   = Up
-    TB1CTL |= CNTL__16;         // Choose counter length (16 bits)
-    TB1CTL |= ID__4;            // Choose D1
-    TB1EX0 |= TBIDEX__7;        // Choose D2 such that D1 * D2 = D
-    TB1CCR0 = 214;              // TB0CCR0 = 214
-
-    //----- Setup Timers Overflow IQR--------
-    TB1CCTL0 &= ~CCIFG;           //Clear CCR0 flag
-    TB1CCTL0 |= CCIE;             //Enable CCR0 Overflow IQR
-
-    TB1CCTL1 &= ~CCIFG;           //Clear CCR1 flag
-
-    //----- Setup Timer B1 (USE FOR RED PIN RGB LED)--------
-    TB1CTL |= TBCLR;            // Clear Timers and Dividers
-    TB1CTL |= TBSSEL__SMCLK;    // Source = SMCLK
-    TB1CTL |= MC__UP;           // Mode   = Up
-    TB1CTL |= CNTL__16;         // Choose counter length (16 bits)
-    TB1CTL |= ID__4;            // Choose D1
-    TB1EX0 |= TBIDEX__7;        // Choose D2 such that D1 * D2 = D
-    TB1CCR0 = 214;              // TB0CCR0 = 214
-
-    //----- Setup Timers Overflow IQR--------
-    TB1CCTL0 &= ~CCIFG;           //Clear CCR0 flag
-    TB1CCTL0 |= CCIE;             //Enable CCR0 Overflow IQR
-
-    TB1CCTL1 &= ~CCIFG;           //Clear CCR1 flag
-
-    PM5CTL0 &= ~LOCKLPM5;       // Turn off GPIO
-
-    while (true)
+    // Stop watchdog timer and disable default high-impedance mode
+    PM5CTL0 &= ~LOCKLPM5;
+   
+    Keypad_init();
+    Initialize_LEDBAR();
+    // Main loop enters low-power mode; all processing is in the ISR.
+    while(1)
     {
-
-        P3OUT |= BIT4;
-        P3OUT |= BIT1;
-        
-        P6IN |= BIT2;
-        P6IN |= BIT3;
-
+        //__low_power_mode_0(); // Sleep until an interrupt occurs
     }
 }
 
-// Timer B0 Overflow ISR
+
+// Timer B0 CCR0 ISR
 #pragma vector = TIMER0_B0_VECTOR
-__interrupt void ISR_TB0_Overflow(void)
+__interrupt void ISR_TB0_CCR0(void)
 {
-    if (TB0CTL & TBIFG)  // Check if overflow flag is set
+    // Static counter to toggle LED only every ~0.5s.
+    // Based on a SMCLK = 1MHz, divided by 8 (from ID__4 and TBIDEX__2),
+    // the timer clock is 125kHz and the period is ~4679/125000 ≈ 0.03743s.
+    // About 14 interrupts yield ~0.524s.
+    static unsigned int toggleCount = 0;
+   
+    // --- Keypad Scanning via Switch-Case ---
+    switch(arrayCounter)
     {
-        P1OUT ^= BIT0;  // Toggle LED1
-        TB0CTL &= ~TBIFG;  // Clear interrupt flag
+        case 0:
+            // Activate row 1 (P1.4) and clear other rows.
+            P1OUT |= BIT4;
+            P1OUT &= ~(BIT5 | BIT6 | BIT7);
+            col4Input = P5IN;  // Sample keypad column inputs
+            switch(col4Input){
+                case 0b0001:
+                    button_input = '1';
+                    P6OUT ^= BIT6;
+                    Passkey_func(button_input);
+                    break;
+                case 0b0010:
+                    button_input = '4';
+                    P6OUT ^= BIT6;
+                    Passkey_func(button_input);
+                    break;
+                case 0b0100:
+                    button_input = '7';
+                    P6OUT ^= BIT6;
+                    break;
+                case 0b1000:
+                    button_input = '*';
+                    P6OUT ^= BIT6;
+                    break;
+            };
+            break;
+           
+        case 1:
+            // Activate row 2 (P1.5)
+            P1OUT |= BIT5;
+            P1OUT &= ~(BIT4 | BIT6 | BIT7);
+            col3Input = P5IN;
+            switch(col3Input){
+                case 0b0001:
+                    button_input = '2';
+                    P6OUT ^= BIT6;
+                    break;
+                case 0b0010:
+                    button_input = '5';
+                    P6OUT ^= BIT6;
+                    break;
+                case 0b0100:
+                    button_input = '8';
+                    P6OUT ^= BIT6;
+                    break;
+                case 0b1000:
+                    button_input = '0';
+                    P6OUT ^= BIT6;
+                    break;
+            };
+            break;
+           
+        case 2:
+            // Activate row 3 (P1.6)
+            P1OUT |= BIT6;
+            P1OUT &= ~(BIT4 | BIT5 | BIT7);
+            col2Input = P5IN;
+            switch(col2Input){
+                case 0b0001:
+                    button_input = '3';
+                    P6OUT ^= BIT6;
+                    break;
+                case 0b0010:
+                    button_input = '6';
+                    P6OUT ^= BIT6;
+                    break;
+                case 0b0100:
+                    button_input = '9';
+                    P6OUT ^= BIT6;
+                    break;
+                case 0b1000:
+                    button_input = '#';
+                    P6OUT ^= BIT6;
+                    break;
+            };
+            break;
+           
+        case 3:
+            // Activate row 4 (P1.7)
+            P1OUT |= BIT7;
+            P1OUT &= ~(BIT4 | BIT5 | BIT6);
+            if (P5IN == 0b00001000)  // Example condition for key detection
+            {
+                testHigh = true;
+                //keypadInput[0] = 1;
+            }
+            col1Input = P5IN;
+            switch(col1Input){
+                case 0b0001:
+                    button_input = 'A';
+                    P6OUT ^= BIT6;
+                    break;
+                case 0b0010:
+                    button_input = 'B';
+                    P6OUT ^= BIT6;
+                    break;
+                case 0b0100:
+                    button_input = 'C';
+                    P6OUT ^= BIT6;
+                    break;
+                case 0b1000:
+                    button_input = 'D';
+                    P6OUT ^= BIT6;
+                    break;
+            };
+            break;
+           
+        default:
+            break;
     }
+   
+    // Update the row counter, wrapping from 3 back to 0.
+    arrayCounter = (arrayCounter + 1) % 4;
+   
+    // Increment toggleCount and toggle LED (P1.0) every ~0.5 seconds.
+    toggleCount++;
+    if(toggleCount >= 14)
+    {
+        P1OUT ^= BIT0;  // Toggle LED on P1.0
+        toggleCount = 0;
+    }
+   
+    // Clear CCR0 interrupt flag
+    TB0CCTL0 &= ~CCIFG;
 }
 
-// Timer B1 Overflow ISR
-#pragma vector = TIMER0_B1_VECTOR
-__interrupt void ISR_TB1_Overflow(void)
-{
-    if (TB0CTL & TBIFG)  // Check if overflow flag is set
-    {
-        P1OUT ^= BIT0;  // Toggle LED1
-        TB0CTL &= ~TBIFG;  // Clear interrupt flag
-    }
-}
+
+
+
