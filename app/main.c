@@ -26,7 +26,11 @@ void Keypad_init(void)
    
     // Configure P5.0-P5.3 as inputs (for reading keypad columns)
     P5DIR &= ~(BIT0 | BIT1 | BIT2 | BIT3);
+    P5REN &= BIT0 | BIT1 | BIT2 | BIT3;
     P5OUT &= ~(BIT0 | BIT1 | BIT2 | BIT3);
+
+    P6DIR |= BIT6;
+    P6OUT &= ~BIT6;
    
     // --- Setup Timer B0 ---
     TB0CTL = TBCLR;                      // clear timer
@@ -76,6 +80,10 @@ __interrupt void ISR_TB0_CCR0(void)
             P1OUT |= BIT4;
             P1OUT &= ~(BIT5 | BIT6 | BIT7);
             col4Input = P5IN;  // Sample keypad column inputs
+            switch(col4Input){
+                case 0b0001:
+                    P6OUT ^= BIT6;
+            };
             break;
            
         case 1:
